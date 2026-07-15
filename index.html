@@ -136,6 +136,11 @@
       <h2>今回のまとめ</h2>
       <div id="summary-list"></div>
     </div>
+    <div class="card">
+      <button id="btn-submit" class="btn btn-primary" onclick="handleSubmit()">解答を提出</button>
+      <p id="submit-status" class="note hidden"></p>
+      <textarea id="submit-fallback" class="hidden" rows="8" readonly onclick="this.select()"></textarea>
+    </div>
     <button id="btn-summary-home" class="btn btn-primary" onclick="handleGoHome()">ホームへ戻る</button>
   </section>
 

@@ -6,7 +6,8 @@ const STORAGE = {
   progress: 'wlc.progress',
   history: 'wlc.history',
   lang: 'wlc.lang',
-  timerMinutes: 'wlc.timerMinutes'
+  timerMinutes: 'wlc.timerMinutes',
+  submitterName: 'wlc.submitterName'
 };
 
 const memoryStore = {};
@@ -60,6 +61,9 @@ function getTimerMinutes() {
 }
 function setTimerMinutes(m) { storageSet(STORAGE.timerMinutes, String(m)); }
 
+function getSubmitterName() { return storageGet(STORAGE.submitterName) || ''; }
+function setSubmitterName(n) { storageSet(STORAGE.submitterName, n); }
+
 const DATA = CATECHISM_DATA.slice().sort((a, b) => a.id - b.id);
 
 // ---- view navigation ----
@@ -101,6 +105,7 @@ let sessionStartIndex = 0;
 let timerInterval = null;
 let timerRemaining = 0;
 let timerPaused = false;
+let lastSessionRecords = [];
 
 function startSession() {
   const progress = loadProgress();
@@ -188,6 +193,7 @@ function finishSession() {
     };
   });
   records.forEach(appendHistory);
+  lastSessionRecords = records;
 
   let newIndex = sessionStartIndex + sessionQueue.length;
   if (newIndex >= DATA.length) newIndex = DATA.length;
@@ -195,7 +201,30 @@ function finishSession() {
 
   renderSummary(records);
   document.getElementById('summary-celebrate').classList.toggle('hidden', newIndex < DATA.length);
+
+  const statusEl = document.getElementById('submit-status');
+  statusEl.classList.add('hidden');
+  statusEl.textContent = '';
+  const fallbackEl = document.getElementById('submit-fallback');
+  fallbackEl.classList.add('hidden');
+  fallbackEl.value = '';
+
   showView('summary');
+}
+
+function buildSubmissionText(name, records) {
+  const lines = [
+    'ウェストミンスター小教理問答 学習アプリ - 解答提出',
+    '名前: ' + name,
+    '提出日時: ' + new Date().toLocaleString('ja-JP'),
+    ''
+  ];
+  records.forEach(r => {
+    lines.push(`第${r.id}問　${r.question}`);
+    lines.push('あなたの答え: ' + (r.userAnswer || '(未記入)'));
+    lines.push('');
+  });
+  return lines.join('\n');
 }
 
 function renderSummary(records) {
@@ -300,6 +329,49 @@ function handleNext() {
   renderStudyQuestion();
 }
 function handleFinish() { finishSession(); }
+
+function showSubmitFallback(text, message) {
+  const statusEl = document.getElementById('submit-status');
+  statusEl.classList.remove('hidden');
+  statusEl.textContent = message;
+  const fallbackEl = document.getElementById('submit-fallback');
+  fallbackEl.value = text;
+  fallbackEl.classList.remove('hidden');
+}
+
+function handleSubmit() {
+  const name = prompt('お名前を入力してください:', getSubmitterName());
+  if (name === null) return;
+  const trimmedName = name.trim();
+  if (!trimmedName) {
+    alert('名前を入力してください。');
+    return;
+  }
+  setSubmitterName(trimmedName);
+
+  const text = buildSubmissionText(trimmedName, lastSessionRecords);
+  const statusEl = document.getElementById('submit-status');
+
+  if (navigator.share) {
+    navigator.share({ title: 'ウェストミンスター小教理問答 提出', text: text }).then(() => {
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = '提出内容を送信しました。';
+    }).catch(() => { /* user cancelled the share sheet - not an error */ });
+    return;
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = '提出内容をクリップボードにコピーしました。LINEなどに貼り付けて送信してください。';
+    }).catch(() => {
+      showSubmitFallback(text, 'コピーに失敗しました。下のテキストを手動で選択してコピーしてください。');
+    });
+    return;
+  }
+
+  showSubmitFallback(text, '下のテキストを手動で選択してコピーし、LINEなどに貼り付けて送信してください。');
+}
 
 // ---- initialize ----
 refreshHome();
