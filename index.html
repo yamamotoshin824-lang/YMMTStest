@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ウェストミンスター小教理問答 学習アプリ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script>
+// Surfaces any script error directly on the page. onclick="" handlers fail
+// silently on mobile (no devtools access), so without this a broken script
+// just looks like "the buttons don't do anything" with no clue why.
+(function () {
+  function showFatalError(message) {
+    var el = document.getElementById('fatal-error-banner');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'fatal-error-banner';
+      el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;' +
+        'background:#a4433a;color:#fff;padding:12px 16px;font-family:monospace;' +
+        'font-size:12px;white-space:pre-wrap;max-height:50vh;overflow:auto;';
+      document.body.insertBefore(el, document.body.firstChild);
+    }
+    el.textContent += (el.textContent ? '\n\n' : 'このアプリでエラーが発生しました。以下の内容を開発者に伝えてください:\n\n') + message;
+  }
+  window.onerror = function (msg, url, line, col) {
+    showFatalError(msg + ' (line ' + line + ':' + col + ')');
+  };
+  window.addEventListener('unhandledrejection', function (ev) {
+    var reason = ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason);
+    showFatalError('Promise rejection: ' + reason);
+  });
+
+  // iOS Files app's "Quick Look" HTML preview (opened by tapping a file
+  // directly, as opposed to actually launching Safari) sometimes fails to
+  // deliver synthesized click events to plain elements, while still
+  // rendering everything and running scripts normally - native form
+  // controls (e.g. the timer <input type=number>) work because those are
+  // OS widgets, but <button onclick> taps silently do nothing. Delegate
+  // touchend -> click manually as a fallback; preventDefault on touchend
+  // suppresses the browser's own follow-up click so this can't double-fire
+  // in normal browsers where taps already work.
+  document.addEventListener('touchend', function (ev) {
+    var el = ev.target.closest && ev.target.closest('button, a[onclick], [onclick]');
+    if (!el) return;
+    ev.preventDefault();
+    el.click();
+  }, { passive: false });
+})();
+</script>
+<header class="app-header">
+  <h1>ウェストミンスター小教理問答 学習アプリ</h1>
+  <div class="lang-toggle">
+    <button id="lang-ja" class="lang-btn active" data-lang="ja" onclick="handleLangJa()">日本語</button>
+    <button id="lang-en" class="lang-btn" data-lang="en" onclick="handleLangEn()">English</button>
+  </div>
+</header>
+
+<main id="app">
+
+  <!-- ホーム画面 -->
+  <section id="view-home" class="view">
+    <div id="home-celebrate" class="card celebrate hidden">
+      <span class="emoji">🎉</span>
+      <h2>全問学習完了！</h2>
+      <p>全107問を学習しました。おめでとうございます。「学習を始める」でもう一度最初から復習できます。</p>
+    </div>
+
+    <div class="card">
+      <h2>進捗</h2>
+      <p id="progress-text"></p>
+      <div class="progress-bar-outer"><div id="progress-bar-inner" class="progress-bar-inner"></div></div>
+    </div>
+
+    <div class="card actions">
+      <button id="btn-start" class="btn btn-primary" onclick="handleStart()">学習を始める（次の3問）</button>
+      <button id="btn-history" class="btn" onclick="handleHistoryOpen()">学習履歴を見る</button>
+    </div>
+
+    <div class="card settings">
+      <h3>設定</h3>
+      <label>
+        3問通しての制限時間（分）:
+        <input type="number" id="timer-minutes" min="1" max="30" value="5" onchange="handleTimerMinutesChange(this)">
+      </label>
+    </div>
+
+    <div class="card note">
+      <p>全107問。ウェストミンスター小教理問答 日本語訳・英語原文。</p>
+    </div>
+
+    <div class="reset-zone">
+      <button id="btn-reset" class="btn-subtle" onclick="handleReset()">進捗をリセット</button>
+    </div>
+  </section>
+
+  <!-- 学習画面 -->
+  <section id="view-study" class="view hidden">
+    <div class="card">
+      <div class="timer-block">
+        <div id="timer-display" class="timer-display">05:00</div>
+        <div class="btn-row">
+          <button id="btn-timer-toggle" class="btn" onclick="handleTimerToggle()">一時停止</button>
+          <button id="btn-timer-add" class="btn" onclick="handleTimerAdd()">+1分</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="study-meta">
+        <span id="study-progress-label"></span>
+      </div>
+      <h2 id="study-question"></h2>
+
+      <label for="user-answer">あなたの答え（自分で考えて書いてください）</label>
+      <textarea id="user-answer" rows="6" placeholder="ここに自分の考えた答えを書きます" oninput="handleAnswerInput()"></textarea>
+
+      <div class="btn-row">
+        <button id="btn-prev" class="btn hidden" onclick="handlePrev()">戻る</button>
+        <button id="btn-next" class="btn btn-primary" onclick="handleNext()">次へ</button>
+        <button id="btn-finish" class="btn btn-primary hidden" onclick="handleFinish()">3問とも答えを見る</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- セッション完了画面 -->
+  <section id="view-summary" class="view hidden">
+    <div id="summary-celebrate" class="card celebrate hidden">
+      <span class="emoji">🎉</span>
+      <h2>全問学習完了！</h2>
+      <p>これで全107問の学習が完了しました。おつかれさまでした。</p>
+    </div>
+    <div class="card">
+      <h2>今回のまとめ</h2>
+      <div id="summary-list"></div>
+    </div>
+    <button id="btn-summary-home" class="btn btn-primary" onclick="handleGoHome()">ホームへ戻る</button>
+  </section>
+
+  <!-- 履歴画面 -->
+  <section id="view-history" class="view hidden">
+    <div class="card">
+      <h2>学習履歴</h2>
+      <div id="history-list"></div>
+    </div>
+    <button id="btn-history-back" class="btn" onclick="handleGoHome()">ホームへ戻る</button>
+  </section>
+
+</main>
+
+<script src="catechism-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

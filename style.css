@@ -1,0 +1,314 @@
+:root {
+  --bg: #f6f4ee;
+  --card-bg: #ffffff;
+  --text: #2a2a28;
+  --muted: #6b6b64;
+  --accent: #4a5d8a;
+  --accent-dark: #35446b;
+  --danger: #a4433a;
+  --border: #e0ddd2;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1b18;
+    --card-bg: #2a2925;
+    --text: #eee9df;
+    --muted: #a9a598;
+    --accent: #8fa3d6;
+    --accent-dark: #b7c5e8;
+    --danger: #d97a70;
+    --border: #423f37;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(1rem + env(safe-area-inset-top)) 1.25rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.app-header h1 {
+  font-size: clamp(1rem, 4.5vw, 1.15rem);
+  margin: 0;
+}
+
+.lang-toggle { display: flex; gap: .25rem; }
+
+.lang-btn {
+  font-family: inherit;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--muted);
+  padding: .45rem .8rem;
+  min-height: 36px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: .85rem;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+  touch-action: manipulation;
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+#app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem calc(3rem + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 380px) {
+  #app { padding-left: .85rem; padding-right: .85rem; }
+  .card { padding: 1rem; }
+}
+
+.hidden { display: none; }
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card h2 { margin-top: 0; font-size: 1.15rem; }
+.card h3 { font-size: 1rem; color: var(--muted); }
+
+.progress-bar-outer {
+  background: var(--border);
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+  margin-top: .5rem;
+}
+
+.progress-bar-inner {
+  background: var(--accent);
+  height: 100%;
+  width: 0%;
+  transition: width .3s ease;
+}
+
+.actions { display: flex; flex-direction: column; gap: .6rem; }
+
+.btn {
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 1rem;
+  padding: .75rem 1rem;
+  min-height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+  touch-action: manipulation;
+}
+
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: transparent;
+}
+
+.btn-row {
+  display: flex;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin-top: .75rem;
+}
+
+.settings label {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .9rem;
+}
+
+.settings input[type=number] {
+  width: 4.5rem;
+  font-size: 1rem;
+  padding: .4rem .5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.note { color: var(--muted); font-size: .85rem; }
+.note a { color: var(--accent-dark); }
+
+textarea {
+  width: 100%;
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 1rem;
+  padding: .75rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+}
+
+label {
+  display: block;
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .85rem;
+  color: var(--muted);
+  margin: .75rem 0 .35rem;
+}
+
+.study-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+#study-question {
+  font-size: clamp(1.1rem, 5vw, 1.3rem);
+  margin: .75rem 0 1.25rem;
+}
+
+.timer-block { text-align: center; margin: 1rem 0; }
+
+.timer-display {
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: clamp(2rem, 12vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: .05em;
+  color: var(--accent-dark);
+}
+
+.timer-display.warning { color: var(--danger); }
+
+.answer-reveal {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.answer-reveal h3 { margin-top: 0; }
+
+.btn-small {
+  font-size: .8rem;
+  padding: .35rem .7rem;
+  margin-top: .75rem;
+}
+
+.refs {
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .8rem;
+  color: var(--muted);
+  margin-top: .5rem;
+}
+
+.refs a {
+  color: var(--accent-dark);
+  text-decoration: underline;
+}
+
+.summary-item {
+  border-bottom: 1px solid var(--border);
+  padding: .75rem 0;
+}
+
+.summary-item:last-child { border-bottom: none; }
+
+.summary-item .q { font-weight: 600; margin-bottom: .35rem; }
+.summary-item .a-official { color: var(--accent-dark); margin: .35rem 0; }
+.summary-item .a-user {
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .9rem;
+  color: var(--muted);
+}
+
+.history-entry {
+  border-bottom: 1px solid var(--border);
+  padding: .6rem 0;
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .9rem;
+}
+
+.history-entry .date { color: var(--muted); font-size: .75rem; }
+
+/* 進捗リセット: 誤タップ防止のため主要アクションから離し、控えめな見た目にする */
+.reset-zone {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.btn-subtle {
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .75rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  padding: .5rem .75rem;
+  min-height: 44px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+  touch-action: manipulation;
+}
+
+/* 全問学習完了の演出 */
+.celebrate {
+  text-align: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+}
+
+.celebrate .emoji {
+  display: block;
+  font-size: 2.5rem;
+  margin-bottom: .5rem;
+}
+
+.celebrate h2 {
+  color: #fff;
+  margin: 0 0 .5rem;
+  font-size: 1.25rem;
+}
+
+.celebrate p {
+  margin: 0;
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: .9rem;
+  opacity: .95;
+}
